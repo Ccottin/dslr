@@ -1,7 +1,6 @@
 import pandas as pd
 from pandas import DataFrame
-import tkinter as tk
-from tkinter import ttk
+from display import display_data
 
 
 def load(path: str) -> DataFrame:
@@ -14,47 +13,34 @@ def load(path: str) -> DataFrame:
         print("Error: ", str(e))
         return None
 
-data = load("datasets/dataset_test.csv")
+# data = load("datasets/dataset_test.csv")
 
-data = load("datasets/dataset_train.csv")
-print(data)
 
-# au moins tout le monde a les memes colonnes formatees pareil o//
-# Créer une fenêtre Tkinter
-root = tk.Tk()
-root.title("Affichage DataFrame")
+def main():
+#   assert len(sys.argv) == 2, "Please provide a data file"
+#   data = load(sys.argv[1])
+    data = load("datasets/dataset_train.csv")
+    sorted_args = list(data['Arithmancy'].dropna())
+    sorted_args.sort()
+    size = len(sorted_args)
+    print(size)
+    quartile = sorted_args[int(size / 4)]
+    quartile3 = sorted_args[int(size * 3 / 4)]
+    print(quartile, quartile3)
+    print(data['Arithmancy'].quantile([0.25, 0.75]))
+    display_data(data)
 
-# Créer une table dans une fenêtre déroulante
-frame = ttk.Frame(root)
-frame.pack(fill=tk.BOTH, expand=True)
 
-# Ajouter une barre de défilement
-scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-# Créer une liste de colonnes et de données
-tree = ttk.Treeview(frame, yscrollcommand=scrollbar.set)
-tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-scrollbar.config(command=tree.yview)
+if __name__ == "__main__":
+    main()
 
-# Configurer les colonnes
-tree["columns"] = list(data.columns)
-tree["show"] = "headings"  # Masquer la colonne par défaut
-for col in data.columns:
-    tree.heading(col, text=col)  # Ajouter les en-têtes
-    tree.column(col, width=100)  # Largeur par défaut
 
-# Ajouter les données
-for _, row in data.iterrows():
-    tree.insert("", "end", values=list(row))
-
-# Lancer la fenêtre
-root.mainloop()
-
-## TO DO == deja, faire un main :}}
+# TO DO == deja, faire un main :}}
 # ensuite, ca serit bien de comprendre = comment sont traitees les donnees : std ou norm
 # a savoir au'il n'y a rien en dessous de 0.
 # voir comment skip les nans ; les virer de l'echantillon et de fait pas les prendre en compte 
 # dans le calculs (genre faire un conpteur puis len - compteur maybe?)
-# 
+# commencer par virer les nan,puis trouver  min max, total, moyenne, afficher et voir comment on peut 
+# uniformiser notre bordel

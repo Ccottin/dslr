@@ -1,28 +1,23 @@
-import pandas as pd
-from pandas import DataFrame
-from display import display_data
+from display import display_two_datas
 from load_csv import load
-import numpy as np
+from describe import describe
 
 
 def main():
 #   assert len(sys.argv) == 2, "Please provide a data file"
 #   data = load(sys.argv[1])
     data = load("datasets/dataset_train.csv")
+    print(describe(data))
+    print(data.describe())
 
-    print(data['Arithmancy'].quantile([0.25, 0.75]))
-    print(data['Arithmancy'].describe())
+    print(data['Herbology'].quantile([.25, .50, .75], interpolation='midpoint'))
+    print(data['Herbology'].quantile([.25, .50, .75], interpolation='linear'))
+    print(data['Index'].quantile([.25, .50, .75], interpolation='midpoint'))
+    print(data['Index'].quantile([.25, .50, .75], interpolation='linear'))
 
-
+    display_two_datas(describe(data), data.describe())
 
 
 if __name__ == "__main__":
     main()
-
-
-# ensuite, ca serit bien de comprendre = comment sont traitees les donnees : std ou norm
-# a savoir au'il n'y a rien en dessous de 0.
-# voir comment skip les nans ; les virer de l'echantillon et de fait pas les prendre en compte 
-# dans le calculs (genre faire un conpteur puis len - compteur maybe?)
-# commencer par virer les nan,puis trouver  min max, total, moyenne, afficher et voir comment on peut 
-# uniformiser notre bordel
+    

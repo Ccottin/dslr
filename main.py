@@ -4,27 +4,14 @@ from display import display_data
 from load_csv import load
 import numpy as np
 
-def modify_col(column):
-    new_column = column.sort_values(ignore_index=True)
-    return (new_column)
 
 def main():
 #   assert len(sys.argv) == 2, "Please provide a data file"
 #   data = load(sys.argv[1])
     data = load("datasets/dataset_train.csv")
 
-    print(data.dtypes)
-    features = data.select_dtypes(include=np.number)
-    columns = features.columns
-    s_features = DataFrame()
-    for col in columns:
-        #print(col)
-        s_features[col] = modify_col(features[col])
-        print(s_features)
-    display_data(s_features)
-
     print(data['Arithmancy'].quantile([0.25, 0.75]))
-    display_data(data)
+    print(data['Arithmancy'].describe())
 
 
 

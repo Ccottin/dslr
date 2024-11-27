@@ -1,4 +1,4 @@
-from pandas import DataFrame, options
+from pandas import DataFrame, options, isnull
 import numpy as np
 
 
@@ -22,38 +22,39 @@ def ft_mean(column, total):
     return (sumr / total)
 
 
+def interpolation(column, total, quantile):
+    """Quantiles calculated with linear interpolation :
+    y = ya + (yb - ya) * ((x - xa) / (xb - xa))
+    x is the quartile, a and b are its upper and lower direct values."""
+
+    x = (total - 1) * quantile
+    yb = column[int(x)]
+    xb = int(x)
+    ya = column[int(x) + 1]
+    xa = int(x) + 1
+    to_multiply = (x - xa) / (xb - xa)
+    y = ya + ((yb - ya) * to_multiply)
+    return (y)
+
+
 def ft_quartiles(column, total, desc_df, column_name):
     """A quartile is value, that a certain percentage will stand above.
-    i.e : in a range from 1 to 10, second quartile (50%) would be 5.5, 
+    i.e : in a range from 1 to 10, second quartile (50%) would be 5.5,
     so half of value would stand below and half above"""
 
-    quart = int(total / 4)
-    half = int(total / 2)
-
-    if total % 2 == 0:
-        desc_df.loc['25%', column_name] = (column[quart - 1] + column[quart]) / 2
-        desc_df.loc['50%', column_name] = (column[half - 1] + column[half]) / 2
-        desc_df.loc['75%', column_name] = (column[quart * 3 - 1] + column[quart * 3]) / 2
-    else:
-        desc_df.loc['25%', column_name] = column[quart - 1]
-        desc_df.loc['50%', column_name] = column[half]
-        desc_df.loc['75%', column_name] = column[quart * 3 - 1]
+    desc_df.loc['25%', column_name] = interpolation(column, total, 0.25)
+    desc_df.loc['50%', column_name] = interpolation(column, total, 0.5)
+    desc_df.loc['75%', column_name] = interpolation(column, total, 0.75)
 
 
 def ft_var(column, total, mean):
     """Variance explains how spreads out datas in a set of number.
     The largest, the more it spreads."""
 
-    # sum = 0
-    # for row in column:
-    #     sum += (row - mean) ** 2
-    #  return (sum / total)
-    temp = column - mean
-    temp = temp ** 2
     sum = 0
-    for row in temp:
-        sum = sum + row
-    return (sum / total - 1)
+    for row in column:
+        sum += (row - mean) ** 2
+    return (sum / (total - 1))
 
 
 def ft_std(variance):
@@ -84,12 +85,10 @@ def describe(data: DataFrame):
 
     # select all numerics datas
     features = data.select_dtypes(include=np.number)
-    # check s'il est vide!
-    # virer l index
+    if features.empty:
+        return (DataFrame())
     columns = features.columns
     desc_df = DataFrame(columns=columns,
-                        # index=["Count", "Mean", "Std", "Min", "25%",
-                        #        "50%", "75%", "Max"],                     
                         index=["Count", "Mean", "Std", "Min", "25%",
                                "50%", "75%", "Max"],
                         dtype=float
